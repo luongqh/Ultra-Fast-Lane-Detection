@@ -1,6 +1,6 @@
 # DATA
 dataset='Tusimple'
-data_root = None
+data_root = 'images/'
 
 # TRAIN
 epoch = 100

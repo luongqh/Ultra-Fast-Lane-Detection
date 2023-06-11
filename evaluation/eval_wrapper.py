@@ -83,12 +83,12 @@ def generate_tusimple_lines(out,shape,griding_num,localization_type='rel'):
     return lanes
 
 def run_test_tusimple(net,data_root,work_dir,exp_name,griding_num,use_aux, distributed,batch_size = 8):
-    output_path = os.path.join(work_dir,exp_name+'.%d.txt'% get_rank())
-    fp = open(output_path,'w')
+    # output_path = os.path.join(work_dir,exp_name+'.%d.txt'% get_rank())
+    # fp = open(output_path,'w')
     loader = get_test_loader(batch_size,data_root,'Tusimple', distributed)
     for i,data in enumerate(dist_tqdm(loader)):
         imgs,names = data
-        imgs = imgs.cuda()
+        # imgs = imgs.cuda()
         with torch.no_grad():
             out = net(imgs)
         if len(out) == 2 and use_aux:
@@ -104,8 +104,8 @@ def run_test_tusimple(net,data_root,work_dir,exp_name,griding_num,use_aux, distr
             tmp_dict['run_time'] = 10
             json_str = json.dumps(tmp_dict)
 
-            fp.write(json_str+'\n')
-    fp.close()
+            # fp.write(json_str+'\n')
+    # fp.close()
 
 def combine_tusimple_test(work_dir,exp_name):
     size = get_world_size()
@@ -156,7 +156,10 @@ def eval_lane(net, dataset, data_root, work_dir, griding_num, use_aux, distribut
         synchronize()  # wait for all results
         if is_main_process():
             combine_tusimple_test(work_dir,exp_name)
-            res = LaneEval.bench_one_submit(os.path.join(work_dir,exp_name + '.txt'),os.path.join(data_root,'test_label.json'))
+            res = LaneEval.bench_one_submit(
+                # os.path.join(work_dir,exp_name + '.txt'),
+                os.path.join(data_root,'test_label.json')
+                )
             res = json.loads(res)
             for r in res:
                 dist_print(r['name'], r['value'])

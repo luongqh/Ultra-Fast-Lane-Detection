@@ -10,7 +10,7 @@ from data.dataset import LaneTestDataset
 from data.constant import culane_row_anchor, tusimple_row_anchor
 
 if __name__ == "__main__":
-    torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.benchmark = True
 
     args, cfg = merge_config()
 
@@ -24,8 +24,12 @@ if __name__ == "__main__":
     else:
         raise NotImplementedError
 
-    net = parsingNet(pretrained = False, backbone=cfg.backbone,cls_dim = (cfg.griding_num+1,cls_num_per_lane,4),
-                    use_aux=False).cuda() # we dont need auxiliary segmentation in testing
+    net = parsingNet(
+        pretrained=True, 
+        backbone=cfg.backbone,
+        cls_dim = (cfg.griding_num+1,cls_num_per_lane,4),
+        use_aux=False)
+    # .cuda() # we dont need auxiliary segmentation in testing
 
     state_dict = torch.load(cfg.test_model, map_location='cpu')['model']
     compatible_state_dict = {}
@@ -50,7 +54,12 @@ if __name__ == "__main__":
         row_anchor = culane_row_anchor
     elif cfg.dataset == 'Tusimple':
         splits = ['test.txt']
-        datasets = [LaneTestDataset(cfg.data_root,os.path.join(cfg.data_root, split),img_transform = img_transforms) for split in splits]
+
+        datasets = [
+            LaneTestDataset(
+            cfg.data_root,os.path.join(cfg.data_root, split),img_transform = img_transforms) for split in splits
+            ]
+
         img_w, img_h = 1280, 720
         row_anchor = tusimple_row_anchor
     else:
